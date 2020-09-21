@@ -1,0 +1,24 @@
+package pingPong;
+
+import java.net.ServerSocket;
+
+public class Server {
+    public static final int PORT = 8088;
+    public static final String HOSTNAME = "localhost";
+
+    public static void main(String[] args) {
+        PingServer pingServer = new PingServer();
+        pingServer.executeServer();
+    }
+
+    private void executeServer() {
+        try(ServerSocket serverSocket = new ServerSocket(PORT)) {
+            PingPongHandler pingPongHandler = new PingPongHandler(serverSocket.accept());
+            System.out.println("Recebida");
+            pingPongHandler.run();
+            System.out.println("Tratada");
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

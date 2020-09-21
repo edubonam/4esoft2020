@@ -1,0 +1,58 @@
+package pingPong;
+
+import java.io.*;
+import java.net.Socket;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.Function;
+
+public class Client {
+
+	private static final int PORT = 8030;
+	private static final String SERVER_ADDRESS = "localhost";
+	
+	public static void main(String[] args) throws Exception {
+		
+		final Client clientPingPong = new Client();
+		clientPingPong.execute();
+	}
+	
+	private void execute() throws Exception {
+		
+		try (Socket connection = new Socket(SERVER_ADDRESS, PORT)) {
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            PrintWriter out = new PrintWriter(connection.getOutputStream());
+
+            List<Long> timeRequestsAmount = new ArrayList<>();
+            long timeBeforeAllRequests = System.nanoTime();
+            for (int count = 0; count < 1000; count++) {
+               out.write("ping \n");
+               out.flush();
+
+               long timeBeforeRequest = System.nanoTime();
+               long timeAfterRequest = System.nanoTime();
+               String message = in.readLine();
+               System.out.println(message);
+
+               long requestDuration = timeAfterRequest - timeBeforeRequest;
+               timeRequestsAmount.add(requestDuration);
+            }
+            out.write("final \n");
+            out.flush();
+
+            System.out.println(in.readLine());
+
+            long timeAfterAllRequests = System.nanoTime();
+            System.out.print(
+                    "Tempo Total: " + (Duration.of(timeAfterAllRequests - timeBeforeAllRequests, ChronoUnit.NANOS)).toMillis() + "ms \n" + "Tempo requisição: " + timeRequestsAmount.stream().mapToLong(value -> value).average().getAsDouble() + "ns \n" );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+	}
+	
+
+}
