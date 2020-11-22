@@ -1,0 +1,129 @@
+package producerConsumer;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class App extends JDialog {
+
+    private final QueueJob jobs = new QueueJob();
+    private final List<ConsumerJob> consumers = new ArrayList<>();
+    private final List<ProducerJob> producers = new ArrayList<>();
+
+    public App() {
+        super();
+        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        this.add(createpainel());
+    }
+
+    public static void main(String[] args) {
+
+        App app = new App();
+        app.setSize(350, 350);
+        app.setVisible(true);
+    }
+
+    private JPanel createpainel() {
+
+        final JPanel painel          = mainLayout();
+        final JPanel firstRowPainel  = producersLayout();
+        final JPanel secondRowPainel = consumersLayout();
+        final JPanel thirdRowPainel  = createLayout(Color.gray, "Consumed job count:    ");
+
+        final JTextField countJobs = new JTextField(40);
+        countJobs.setEnabled(false);
+        countJobs.setMaximumSize(countJobs.getPreferredSize());
+
+        thirdRowPainel.add(countJobs);
+        thirdRowPainel.add(Box.createHorizontalGlue());
+
+        this.jobs.addJobQueueListener(jobCount -> countJobs.setText(String.valueOf(jobCount)));
+
+        painel.add(firstRowPainel);
+        painel.add(secondRowPainel);
+        painel.add(thirdRowPainel);
+
+        return painel;
+    }
+
+    private JPanel mainLayout() {
+
+        final JPanel painel = new JPanel();
+        panel.setBackground(Color.gray);
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createRaisedBevelBorder());
+        return painel;
+    }
+
+    private void startProducers(JButton addButton, JTextField fieldCount) {
+
+        addButton.addActionListener(e -> {
+            JobProducer newProducer = new JobProducer(jobs);
+            producers.add(newProducer);
+            fieldCount.setText(String.valueOf(producers.size()));
+            newProducer.start();
+        });
+    }
+
+    private JPanel producersLayout() {
+
+        final JTextField fieldCount = new JTextField(40);
+        final JButton addButton = new JButton(" + ");
+
+        this.startProducers(addButton, fieldCount);
+        addButton.setMaximumSize(addButton.getPreferredSize());
+
+        fieldCount.setEnabled(false);
+        fieldCount.setMaximumSize(fieldCount.getPreferredSize());
+
+        final JPanel producerspainel = createLayout(Color.CYAN, "Producers:   ");
+        producerspainel.add(fieldCount);
+        producerspainel.add(addButton);
+        producerspainel.add(Box.createHorizontalGlue());
+
+        return producerspainel;
+    }
+
+    private void startConsumers(JButton addButton, JTextField fieldCount) {
+
+        addButton.addActionListener(e -> {
+            ConsumerJob newConsumer = new ConsumerJob(jobs);
+            consumers.add(newConsumer);
+            fieldCount.setText(String.valueOf(consumers.size()));
+            newConsumer.start();
+        });
+    }
+
+    private JPanel consumersLayout() {
+
+        final JTextField fieldCount = new JTextField(40);
+        fieldCount.setFont(new Font("Courier", Font.BOLD, 12));
+
+        final JButton addButton = new JButton(" + ");
+
+        this.startConsumers(addButton, fieldCount);
+        addButton.setMaximumSize(addButton.getPreferredSize());
+
+        fieldCount.setEnabled(false);
+        fieldCount.setMaximumSize(fieldCount.getPreferredSize());
+
+        final JPanel consumerspainel = createLayout(Color.YELLOW, "Consumers: ");
+        consumerspainel.add(fieldCount);
+        consumerspainel.add(addButton);
+        consumerspainel.add(Box.createHorizontalGlue());
+
+        return consumerspainel;
+    }
+
+    private JPanel createLayout(Color color, String s) {
+
+        final JPanel painel = new Jpainel();
+        painel.setLayout(new BoxLayout(painel, BoxLayout.X_AXIS));
+        painel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        painel.setBackground(color);
+        painel.add(new JLabel(s));
+
+        return painel;
+    }
+}
